@@ -30,8 +30,8 @@ class Calibrator:
         self.winButtonSize = 8
         self.winButtonFontSize = 10
         #set font for Windows system
-        self.nonWinButtonSize = 6
-        self.nonWinButtonFontSize = 8
+        self.nonWinButtonSize = 8
+        self.nonWinButtonFontSize = 12
         #set font for non-Windows system
         
         if self.OSname == 'win32':
