@@ -333,9 +333,12 @@ class SkillComposer:
                           bg='Light Blue')
 
             value = DoubleVar()
-            sliderBar = Scale(self.frameImu, state=stt, fg='blue', bg=clr, variable=value, orient=HORIZONTAL,
-                              borderwidth=2, relief='flat', width=10, from_=frm, to=to2, length=125, resolution=1,
-                              command=lambda ang, idx=i: self.set6Axis(idx, ang))  # tickinterval=(to2-frm)//4,
+            
+            sliderBar = ttk.Scale(self.frameImu, state=stt, variable=value, orient=HORIZONTAL, from_=frm, to=to2,
+                                  length=125, command=lambda ang, idx=i: self.set6Axis(idx, float(ang)))
+            #sliderBar = Scale(self.frameImu, state=stt, fg='blue', bg=clr, variable=value, orient=HORIZONTAL,
+            #                  borderwidth=2, relief='flat', width=10, from_=frm, to=to2, length=125, resolution=1,
+            #                  command=lambda ang, idx=i: self.set6Axis(idx, ang))  # tickinterval=(to2-frm)//4,
             sliderBar.set(0)
             label.grid(row=i, column=0)
             sliderBar.grid(row=i, column=1, columnspan=centerWidth)
@@ -350,11 +353,20 @@ class SkillComposer:
                         length=LEN, command=lambda value, idx=i: self.setAngle(idx, float(value)))
         varLabel = ttk.Label(frame, text=0)
         self.varLabelList.append(varLabel)
-        varLabel.grid(row=0, column=0, columnspan=5)
-        sliderBar.grid(row=1, column=0, columnspan=5)
+        varLabel.grid(row=0, column=0, columnspan=5, sticky='ns')
+        sliderBar.grid(row=1, column=0, columnspan=5, sticky='ns')
         for t, value in enumerate(range(-180, 181, 90)):
-            tick = ttk.Label(frame, text=str(value))
-            tick.grid(row=2, column=t, sticky=N+S)
+            if value <= 0:
+                tick = ttk.Label(frame, text=str(value))
+            else:
+                tick = ttk.Label(frame, text=' ' + str(value))
+            if t < 2:
+                s = 'w'
+            elif t > 2:
+                s = 'e'
+            else:
+                s = 'ns'
+            tick.grid(row=2, column=t, sticky=s)
         if stt == DISABLED:
             if self.theme == 'darkly':
                 frame.config(bootstyle='secondary', borderwidth= 5, relief='solid')
@@ -377,7 +389,13 @@ class SkillComposer:
         sliderBar.grid(row=0,column=0, rowspan=5, pady=5, sticky=N+S)
         for t, value in enumerate(range(180, -181, -90)):
             tick = ttk.Label(frame, text=str(value))
-            tick.grid(row=t, column=1, padx=5, pady=3)
+            if t < 2:
+                s = 'n'
+            elif t > 2:
+                s = 's'
+            else:
+                s = 'ns'
+            tick.grid(row=t, column=1, padx=5, pady=3, sticky=s)
         if stt == DISABLED:
             if self.theme == 'darkly':
                 frame.config(bootstyle='secondary', borderwidth= 5, relief='solid')
@@ -388,7 +406,7 @@ class SkillComposer:
                 frame.config(bootstyle='info', borderwidth= 5, relief='solid')
             else:
                 frame.config(bootstyle='success', borderwidth= 5, relief='solid')
-        varLabel.grid(row=6, column=0, columnspan=2, sticky=N+S)
+        varLabel.grid(row=6, column=0, columnspan=2)
         return frame, sliderBar
     
     def createDial(self):
@@ -505,9 +523,9 @@ class SkillComposer:
         labelPosture.grid(row=0, column=0, columnspan=4)
         i = 0
         for pose in self.postureTable:
-            button = Button(self.framePosture, text=pose, fg='blue', width=self.buttonW,
+            button = Button(self.framePosture, text=pose, width=self.buttonW,
                             command=lambda p=pose: self.setPose(p))
-            button.grid(row=i // 4 + 1, column=i % 4, padx=3)
+            button.grid(row=i // 4 + 1, column=i % 4, padx=3, pady=3)
             i += 1
 
     def createSkillEditor(self):
@@ -525,40 +543,40 @@ class SkillComposer:
 
         buttonImp = Button(self.frameSkillEditor, text=txt('Import'), width=self.buttonW, fg='blue',
                            command=self.popImport)
-        buttonImp.grid(row=1, column=1, padx=pd)
+        buttonImp.grid(row=1, column=1, padx=pd, pady=pd)
 
         tip(buttonImp, txt('tipImport'))
         
         buttonRestart = Button(self.frameSkillEditor, text=txt('Restart'), width=self.buttonW, fg='red',
                                command=self.restartSkillEditor)
-        buttonRestart.grid(row=1, column=2, padx=pd)
+        buttonRestart.grid(row=1, column=2, padx=pd, pady=pd)
 
         tip(buttonRestart, txt('tipRestart'))
 
         buttonExp = Button(self.frameSkillEditor, text=txt('Export'), width=self.buttonW, fg='blue',
                            command=self.export)
-        buttonExp.grid(row=1, column=3, padx=pd)
+        buttonExp.grid(row=1, column=3, padx=pd, pady=pd)
 
         tip(buttonExp, txt('tipExport'))
 
         buttonUndo = Button(self.frameSkillEditor, text=txt('Undo'), width=self.buttonW, fg='blue', state=DISABLED,
                             command=self.restartSkillEditor)
-        buttonUndo.grid(row=2, column=0, padx=pd)
+        buttonUndo.grid(row=2, column=0, padx=pd, pady=pd)
 
         buttonRedo = Button(self.frameSkillEditor, text=txt('Redo'), width=self.buttonW, fg='blue', state=DISABLED,
                             command=self.restartSkillEditor)
-        buttonRedo.grid(row=2, column=1, padx=pd)
+        buttonRedo.grid(row=2, column=1, padx=pd, pady=pd)
 
         cbMiroX = Checkbutton(self.frameSkillEditor, text=txt('mirror'), indicator=0, width=self.MirrorW,
                               fg='blue', variable=self.mirror, onvalue=True, offvalue=False,
                               command=self.setMirror)
-        cbMiroX.grid(row=2, column=2, sticky='e', padx=pd)
+        cbMiroX.grid(row=2, column=2, sticky='e', padx=pd, pady=pd)
 
         tip(cbMiroX, txt('tipMirrorXport'))
 
         buttonMirror = Button(self.frameSkillEditor, text=txt('>|<'), width=self.mirrorW, fg='blue',
                               command=self.generateMirrorFrame)
-        buttonMirror.grid(row=2, column=2, sticky='w', padx=pd)
+        buttonMirror.grid(row=2, column=2, sticky='w', padx=pd, pady=pd)
 
         tip(buttonMirror, txt('tipMirror'))
 
@@ -566,7 +584,7 @@ class SkillComposer:
         self.GorB = OptionMenu(self.frameSkillEditor, self.gaitOrBehavior, txt('Gait'), txt('Behavior'))
         self.GorB.config(width=6, fg='blue')
         self.gaitOrBehavior.set(txt('Behavior'))
-        self.GorB.grid(row=2, column=3, padx=pd)
+        self.GorB.grid(row=2, column=3, padx=pd, pady=pd)
 
         tip(self.GorB, txt('tipGorB'))
 
@@ -1441,7 +1459,12 @@ class SkillComposer:
     def setAngle(self, idx, value):
         if self.ready == 1:
             value = int(value)
-            self.varLabelList[idx].config(text=int(value))
+            if value > 180:
+                self.varLabelList[idx].config(text=180)
+            elif value < -180:
+                self.varLabelList[idx].config(text=-180)
+            else:
+                self.varLabelList[idx].config(text=int(value))
             if self.binderValue[idx].get() == 0:
                 self.frameData[4 + idx] = value
                 if -126 < value < 126:
@@ -1590,6 +1613,12 @@ class SkillComposer:
 
     def updateSliders(self, angles):
         for i in range(16):
+            if angles[4 + i] > 180:
+                self.varLabelList[i].config(text=180)
+            elif angles[4 + i] < -180:
+                self.varLabelList[i].config(text=-180)
+            else:
+                self.varLabelList[i].config(text=angles[4 + i])
             self.values[i].set(angles[4 + i])
             self.frameData[4 + i] = angles[4 + i]
     """
