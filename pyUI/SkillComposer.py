@@ -103,8 +103,8 @@ class SkillComposer:
         if self.OSname == 'win32':
             self.window.iconbitmap(resourcePath + 'Petoi.ico')
             # global frameItemWidth
-            self.frameItemWidth = [2, 4, 3, 5, 4, 4, 7, 3, 3]
-            self.headerOffset = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            self.frameItemWidth = [2, 2, 3, 6, 4, 4, 6, 2, 2]
+            self.headerOffset = [0, 1, 0, 2, 2, 1, 1, 0, 1]
 
             self.sixW = 6
             self.sliderW = 200
@@ -139,7 +139,7 @@ class SkillComposer:
             self.dialPad = 3
 
         self.myFont = tkFont.Font(
-            family='Times New Roman', size=20, weight='bold')
+            family='segoe ui', size=20, weight='bold')
         self.window.title(txt('skillComposerTitle'))
         self.totalFrame = 0
         self.activeFrame = 0
@@ -290,14 +290,14 @@ class SkillComposer:
                     if i < 4:
                         if d == 0:
                             if i == 1 or i == 2:
-                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)-1, sticky='ns')
+                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)-1)
                             else:
                                 button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)-1, sticky='e')
                         else:
                             if i == 1 or i == 2:
                                 button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)+1, sticky='w')
                             else:
-                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)+1, sticky='n')
+                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)+1)
                     else:
                         button.grid(row=ROW + 2 + d * (rSPAN - 1), column=COL, sticky='ns'[d]+'e')
                     binderValue.set(0)
@@ -315,10 +315,10 @@ class SkillComposer:
             to2 = 40
             if i in axisDisable[self.model]:
                 stt = DISABLED
-                clr = 'light yellow'
+                #clr = 'light yellow'
             else:
                 stt = NORMAL
-                clr = 'yellow'
+                #clr = 'yellow'
             if i == 2:
                 frm = -30
                 to2 = 30
@@ -791,9 +791,9 @@ class SkillComposer:
         addButton = Button(singleFrame, text='v', fg='green', width=self.frameItemWidth[cAdd],
                            command=lambda idx=currentRow: self.addFrame(idx + 1))
 
-        setButton.grid(row=0, column=cSet)
-        delButton.grid(row=0, column=cDel)
-        addButton.grid(row=0, column=cAdd)
+        setButton.grid(row=0, column=cSet, padx=1)
+        delButton.grid(row=0, column=cDel, padx=1)
+        addButton.grid(row=0, column=cAdd, padx=1)
 
         self.updateButtonCommand(currentRow, 1)
         if currentRow == 0:
