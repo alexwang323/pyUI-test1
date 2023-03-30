@@ -16,6 +16,7 @@ from tkinter.colorchooser import askcolor
 from commonVar import *
 import re
 #from tkinter import ttk
+import tkinter as tk
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 language = languageList['English']
@@ -80,6 +81,7 @@ class SkillComposer:
         self.model = var.model_
         ports = goodPorts
         self.window = ttk.Window(themename=theme)
+        self.style = ttk.Style()
         self.sliders = list()
         self.values = list()
         self.dialValue = list()
@@ -105,37 +107,60 @@ class SkillComposer:
             # global frameItemWidth
             self.frameItemWidth = [2, 2, 3, 6, 4, 4, 6, 2, 2]
             self.headerOffset = [0, 1, 0, 2, 2, 1, 1, 0, 1]
+            self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
+            self.currentPadding = (6,5)
+            self.editPadding = (9,5)
 
             self.sixW = 6
             self.sliderW = 200
             self.buttonW = 8
+            self.buttonP = (10,5)
+            self.binderBtnW = 2
+            self.binderBtnP = (0,3)
             self.calibButtonW = 8
             self.canvasW = 330
-            self.mirrorW = 2
-            self.MirrorW = 10
-            self.connectW = 8
+            self.mirrorW = 3
+            self.mirrorP = (0,5)
+            self.MirrorW = 11
+            self.connectW = 10
+            self.connectP = (3,5)
             self.dialW = 7
-            self.portW = 5
+            self.dialP = (3,3)
+            self.portW = 6
+            self.portP = (0,5)
             self.dialPad = 2
         else:
             if self.OSname == 'aqua':
                 self.frameItemWidth = [2, 2, 3,  4, 3, 3,4, 1, 1]
                 self.headerOffset = [2, 2, 2, 2, 2, 2, 2, 2, 2]
+                self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
+                self.currentPadding = (6,5)
+                self.editPadding = (9,5)
 
             else:
                 self.frameItemWidth = [2, 2, 3, 4, 4, 4, 5, 2, 2]
                 self.headerOffset = [0, 0, 1,  1, 0,0, 0, 0, 1]
+                self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
+                self.currentPadding = (6,5)
+                self.editPadding = (9,5)
 
             self.sixW = 5
             self.sliderW = 200
             self.buttonW = 8
+            self.buttonP = (3,4)
+            self.binderBtnW = 2
+            self.binderBtnP = (0,3)
             self.calibButtonW = 6
             self.canvasW = 420
-            self.mirrorW = 1
+            self.mirrorW = 2
+            self.mirrorP = (0,5)
             self.MirrorW = 9
             self.connectW = 8
+            self.connectP = (3,5)
             self.dialW = 6
+            self.dialP = (3,3)
             self.portW = 12
+            self.portP = (3,3)
             self.dialPad = 3
 
         self.myFont = tkFont.Font(
@@ -213,7 +238,8 @@ class SkillComposer:
         label = Label(self.frameController, text=txt('Joint Controller'), font=self.myFont)
         label.grid(row=0, column=0, columnspan=8)
         self.controllerLabels.append(label)
-        unbindButton = Button(self.frameController, text=txt('Unbind All'), fg='blue', command=self.unbindAll)
+        self.style.configure('unbind.TButton', font=('segoe ui', 10), fg='blue')
+        unbindButton = ttk.Button(self.frameController, style='unbind.TButton', text=txt('Unbind All'), command=self.unbindAll)
         unbindButton.grid(row=5, column=3, columnspan=2)
         self.controllerLabels.append(unbindButton)
         
@@ -283,10 +309,13 @@ class SkillComposer:
                 values = {"+": 1,
                           "-": -1, }
                 for d in range(2):
-                    button = Radiobutton(self.frameController, text=list(values)[d], fg='blue', variable=binderValue,
-                                         value=list(values.values())[d], indicator=0, state=stt,
-                                         background="light blue", width=1,
+                    button = ttk.Radiobutton(self.frameController, text=list(values)[d], bootstyle='info-outline-toolbutton', variable=binderValue,
+                                         value=list(values.values())[d], state=stt, width=self.binderBtnW, padding=self.binderBtnP,
                                          command=lambda joint=i: self.updateRadio(joint))
+                    #button = Radiobutton(self.frameController, text=list(values)[d], fg='blue', variable=binderValue,
+                    #                     value=list(values.values())[d], indicator=0, state=stt,
+                    #                     background="light blue", width=1,
+                    #                     command=lambda joint=i: self.updateRadio(joint))
                     if i < 4:
                         if d == 0:
                             if i == 1 or i == 2:
@@ -415,7 +444,7 @@ class SkillComposer:
         labelDial = Label(self.frameDial, text=txt('State Dials'), font=self.myFont)
         labelDial.grid(row=0, column=0, columnspan=5, pady=5)
         defaultValue = [1, 1, 1, 1]
-        textColor = ['red','green']
+        btnColor = ['outline-toolbutton-danger','outline-toolbutton-success']
         for i in range(len(dialTable)):
             key = list(dialTable)[i]
             if len(goodPorts) > 0 or i == 0:
@@ -426,6 +455,7 @@ class SkillComposer:
 #                dialState = DISABLED
             if i == 0:
                 wth = self.connectW
+                pdg = self.connectP
                 if len(goodPorts) > 0:
                     defaultValue[0] = True
                     key = 'Connected'
@@ -434,9 +464,10 @@ class SkillComposer:
                     key = 'Connect'
             else:
                 wth = self.dialW
+                pdg = self.dialP
             value = BooleanVar()
-            button = Checkbutton(self.frameDial, text=txt(key), indicator=0, width=wth, fg=textColor[defaultValue[i]], state=dialState,
-                                 var=value, command=lambda idx=i: self.dial(idx))
+            button = ttk.Checkbutton(self.frameDial, text=txt(key), width=wth, bootstyle=btnColor[defaultValue[i]], state=dialState,
+                                 var=value, padding=pdg ,command=lambda idx=i: self.dial(idx))
             value.set(defaultValue[i])
             self.dialValue.append(value)
             button.grid(row=1, column=i + (i > 0), padx=self.dialPad)
@@ -445,10 +476,10 @@ class SkillComposer:
         self.createPortMenu()
         
         self.newCmd = StringVar()
-        entryCmd = Entry(self.frameDial, textvariable=self.newCmd)
+        entryCmd = ttk.Entry(self.frameDial, textvariable=self.newCmd)
         entryCmd.grid(row=2, column=0, columnspan=4, padx=3, sticky=E + W)
-        button = Button(self.frameDial,text=txt('Send'),fg='blue',width=self.dialW-2,command=self.sendCmd)
-        button.grid(row=2, column=4, padx=3)
+        button = ttk.Button(self.frameDial,text=txt('Send'),width=self.dialW-2,padding=(5,3),command=self.sendCmd)
+        button.grid(row=2, column=4, padx=3, pady=5)
         entryCmd.bind('<Return>',self.sendCmd)
         
 
@@ -456,9 +487,9 @@ class SkillComposer:
     def createPortMenu(self):
         self.port = StringVar()
         self.options = [txt('None')]  # goodPorts.values())
-        self.portMenu = OptionMenu(self.frameDial, self.port, *self.options)
+        self.portMenu = ttk.OptionMenu(self.frameDial, self.port, *self.options)
 
-        self.portMenu.config(width=self.portW, fg='blue')
+        self.portMenu.config(width=self.portW, bootstyle='default', padding=self.portP)
         self.port.trace('w', lambda *args: self.changePort(''))
         self.portMenu.grid(row=1, column=1, padx=2)
         self.updatePortMenu()
@@ -477,9 +508,9 @@ class SkillComposer:
             stt = DISABLED
             if self.keepChecking:
                 self.dialValue[0].set(True)
-                self.frameDial.winfo_children()[1].config(text=txt('Listening'), fg='orange')
+                self.frameDial.winfo_children()[1].config(text=txt('Listening'), bootstyle='outline-toolbutton-warning')
             else:
-                self.frameDial.winfo_children()[1].config(text=txt('Connect'), fg='red')
+                self.frameDial.winfo_children()[1].config(text=txt('Connect'), bootstyle='outline-toolbutton-danger')
         else:
             #            global currentModel
             #            if currentModel != model:
@@ -487,7 +518,7 @@ class SkillComposer:
             if len(self.options) > 1:
                 self.options.insert(0, txt('All'))
             if self.keepChecking:
-                self.frameDial.winfo_children()[1].config(text=txt('Connected'), fg='green')
+                self.frameDial.winfo_children()[1].config(text=txt('Connected'), bootstyle='outline-toolbutton-success')
         for string in self.options:
             menu.add_command(label=string, command=lambda p=string: self.port.set(p))
         self.port.set(self.options[0])
@@ -523,7 +554,7 @@ class SkillComposer:
         labelPosture.grid(row=0, column=0, columnspan=4)
         i = 0
         for pose in self.postureTable:
-            button = ttk.Button(self.framePosture, text=pose, width=self.buttonW,
+            button = ttk.Button(self.framePosture, text=pose, width=self.buttonW, padding=self.buttonP,
                             command=lambda p=pose: self.setPose(p))
             button.grid(row=i // 4 + 1, column=i % 4, padx=3, pady=3)
             i += 1
@@ -535,54 +566,59 @@ class SkillComposer:
         labelSkillEditor = Label(self.frameSkillEditor, text=txt('Skill Editor'), font=self.myFont)
         labelSkillEditor.grid(row=0, column=0, columnspan=4)
         pd = 3
-        self.buttonPlay = Button(self.frameSkillEditor, text=txt('Play'), width=self.buttonW, fg='green',
-                                 command=self.playThread)
+        self.buttonPlay = ttk.Button(self.frameSkillEditor, text=txt('Play'), width=self.buttonW, bootstyle='success', padding=self.buttonP,
+                                command=self.playThread)
         self.buttonPlay.grid(row=1, column=0, padx=pd)
 
         tip(self.buttonPlay, txt('tipPlay'))
 
-        buttonImp = Button(self.frameSkillEditor, text=txt('Import'), width=self.buttonW, fg='blue',
-                           command=self.popImport)
+        buttonImp = ttk.Button(self.frameSkillEditor, text=txt('Import'), width=self.buttonW, bootstyle='default', padding=self.buttonP,
+                            command=self.popImport)
         buttonImp.grid(row=1, column=1, padx=pd, pady=pd)
 
         tip(buttonImp, txt('tipImport'))
         
-        buttonRestart = Button(self.frameSkillEditor, text=txt('Restart'), width=self.buttonW, fg='red',
+        buttonRestart = ttk.Button(self.frameSkillEditor, text=txt('Restart'), width=self.buttonW, bootstyle='danger', padding=self.buttonP,
                                command=self.restartSkillEditor)
         buttonRestart.grid(row=1, column=2, padx=pd, pady=pd)
 
         tip(buttonRestart, txt('tipRestart'))
 
-        buttonExp = Button(self.frameSkillEditor, text=txt('Export'), width=self.buttonW, fg='blue',
+        buttonExp = ttk.Button(self.frameSkillEditor, text=txt('Export'), width=self.buttonW, bootstyle='default', padding=self.buttonP,
                            command=self.export)
         buttonExp.grid(row=1, column=3, padx=pd, pady=pd)
 
         tip(buttonExp, txt('tipExport'))
 
-        buttonUndo = Button(self.frameSkillEditor, text=txt('Undo'), width=self.buttonW, fg='blue', state=DISABLED,
+        buttonUndo = ttk.Button(self.frameSkillEditor, text=txt('Undo'), width=self.buttonW, bootstyle='default', state=DISABLED, padding=self.buttonP,
                             command=self.restartSkillEditor)
         buttonUndo.grid(row=2, column=0, padx=pd, pady=pd)
 
-        buttonRedo = Button(self.frameSkillEditor, text=txt('Redo'), width=self.buttonW, fg='blue', state=DISABLED,
+        buttonRedo = ttk.Button(self.frameSkillEditor, text=txt('Redo'), width=self.buttonW, bootstyle='default', state=DISABLED, padding=self.buttonP,
                             command=self.restartSkillEditor)
         buttonRedo.grid(row=2, column=1, padx=pd, pady=pd)
 
-        cbMiroX = Checkbutton(self.frameSkillEditor, text=txt('mirror'), indicator=0, width=self.MirrorW,
-                              fg='blue', variable=self.mirror, onvalue=True, offvalue=False,
+        #cbMiroX = Checkbutton(self.frameSkillEditor, text=txt('mirror'), indicator=0, width=self.MirrorW,
+        #                      fg='blue', variable=self.mirror, onvalue=True, offvalue=False,
+        #                      command=self.setMirror)
+        cbMiroX = ttk.Checkbutton(self.frameSkillEditor, text=txt('mirror'), width=self.MirrorW, padding=self.mirrorP,
+                              bootstyle='info-outline-toolbutton', variable=self.mirror, onvalue=True, offvalue=False,
                               command=self.setMirror)
         cbMiroX.grid(row=2, column=2, sticky='e', padx=pd, pady=pd)
 
         tip(cbMiroX, txt('tipMirrorXport'))
 
-        buttonMirror = Button(self.frameSkillEditor, text=txt('>|<'), width=self.mirrorW, fg='blue',
+        buttonMirror = ttk.Button(self.frameSkillEditor, text=txt('>|<'), width=self.mirrorW, bootstyle='default', padding=self.mirrorP,
                               command=self.generateMirrorFrame)
         buttonMirror.grid(row=2, column=2, sticky='w', padx=pd, pady=pd)
 
         tip(buttonMirror, txt('tipMirror'))
 
         self.gaitOrBehavior = StringVar()
-        self.GorB = OptionMenu(self.frameSkillEditor, self.gaitOrBehavior, txt('Gait'), txt('Behavior'))
-        self.GorB.config(width=6, fg='blue')
+        options = [txt('Behavior'), txt('Gait')]
+        self.GorB = ttk.OptionMenu(self.frameSkillEditor, self.gaitOrBehavior, options[0], *options)
+        #self.GorB = OptionMenu(self.frameSkillEditor, self.gaitOrBehavior, txt('Gait'), txt('Behavior'))
+        self.GorB.config(width=self.buttonW, bootstyle='default', padding=self.portP)
         self.gaitOrBehavior.set(txt('Behavior'))
         self.GorB.grid(row=2, column=3, padx=pd, pady=pd)
 
@@ -596,7 +632,7 @@ class SkillComposer:
         self.frameRowScheduler.grid(row=3, column=1, sticky='we')
 
         self.vRepeat = IntVar()
-        self.loopRepeat = Entry(self.frameRowScheduler, width=self.frameItemWidth[cLoop], textvariable=self.vRepeat)
+        self.loopRepeat = ttk.Entry(self.frameRowScheduler, width=self.frameItemWidth[cLoop], textvariable=self.vRepeat)
         self.loopRepeat.grid(row=0, column=cLoop)
 
         tip(self.loopRepeat, txt('tipRepeat'))
@@ -609,8 +645,9 @@ class SkillComposer:
                 tip(label, txt(tipSkillEditor[i]))
 
         canvas = Canvas(self.frameRowScheduler, width=self.canvasW, height=310, bd=0)
-        scrollbar = Scrollbar(self.frameRowScheduler, orient='vertical', cursor='double_arrow', troughcolor='yellow',
-                              width=15, command=canvas.yview)
+        self.style.configure('sb.Vertical.TScrollbar', width=15)
+        scrollbar = ttk.Scrollbar(self.frameRowScheduler, orient='vertical', cursor='double_arrow', style='sb.Vertical.TScrollbar',
+                                  command=canvas.yview)
         self.scrollable_frame = Frame(canvas)
 
         self.scrollable_frame.bind(
@@ -687,13 +724,15 @@ class SkillComposer:
             for r in range(len(self.frameList)):
                 tip(self.getWidget(r, cLoop), txt('tipLoop'))
                 tt = '='  # +txt('Set')
-                ft = 'sans 12'
+                #ft = 'sans 12'
+                pdg = self.framePadding[cSet]
                 if self.activeFrame == r:
-                    ft = 'sans 14 bold'
+                    #ft = 'sans 14 bold'
+                    pdg=self.editPadding
                     if self.frameList[r][2] != self.frameData:
                         tt = '!'  # + txt('Save')
-                        self.getWidget(r, cSet).config(fg='red')
-                self.getWidget(r, cSet).config(text=tt, font=ft)
+                        self.getWidget(r, cSet).config(bootstyle='danger')#fg='red')
+                self.getWidget(r, cSet).config(text=tt, padding=pdg)
 
                 step = self.getWidget(r, cStep).get()
                 self.getWidget(r, cStep).config(values=('1', '2', '4', '8', '12', '16', '32', '48', '64', txt('max')))
@@ -722,11 +761,11 @@ class SkillComposer:
             for i in range(16):
                 if i in NaJoints[self.model]:
                     stt = DISABLED
-                    clr = 'light yellow'
+                    #clr = 'light yellow'
                 else:
                     stt = NORMAL
-                    clr = 'yellow'
-                self.sliders[i].config(state=stt, bg=clr)
+                    #clr = 'yellow'
+                self.sliders[i].config(state=stt)
                 self.binderButton[i * 2].config(state=stt)
                 self.binderButton[i * 2 + 1].config(state=stt)
             self.createPosture()
@@ -737,21 +776,26 @@ class SkillComposer:
         singleFrame = Frame(self.scrollable_frame, borderwidth=1, relief=RAISED)
 
         vChecked = BooleanVar()
-        loopCheck = Checkbutton(singleFrame, variable=vChecked, text=str(currentRow), onvalue=True, offvalue=False,
-                                indicator=0, width=self.frameItemWidth[cLoop],
+        loopCheck = ttk.Checkbutton(singleFrame, variable=vChecked, text=str(currentRow), onvalue=True, offvalue=False,
+                                bootstyle='outline-toolbutton', width=self.frameItemWidth[cLoop], padding=self.framePadding[cLoop], 
                                 command=lambda idx=currentRow: self.setCheckBox(idx))
+        #loopCheck = Checkbutton(singleFrame, variable=vChecked, text=str(currentRow), onvalue=True, offvalue=False,
+        #                        indicator=0, width=self.frameItemWidth[cLoop],
+        #                        command=lambda idx=currentRow: self.setCheckBox(idx))
         loopCheck.grid(row=0, column=cLoop)
         tip(loopCheck, txt('tipLoop'))
         #        rowLabel = Label(singleFrame, text = str(currentRow), width = self.frameItemWidth[cLabel])
         #        rowLabel.grid(row=0, column=cLabel)
 
-        setButton = Button(singleFrame, text='=',  # +txt('Set')
-                           font='sans 14 bold', fg='blue',  # width=self.frameItemWidth[cSet],
+        #setButton = Button(singleFrame, text='=',  # +txt('Set')
+        #                   font='sans 14 bold', fg='blue',  # width=self.frameItemWidth[cSet],
+        #                   command=lambda idx=currentRow: self.setFrame(idx))
+        setButton = ttk.Button(singleFrame, text='=',  # +txt('Set')
+                           bootstyle='default',  # width=self.frameItemWidth[cSet],
                            command=lambda idx=currentRow: self.setFrame(idx))
 
         vStep = StringVar()
-        Spinbox(singleFrame, width=self.frameItemWidth[cStep],
-                values=('1', '2', '4', '8', '12', '16', '32', '48', '64', txt('max')), textvariable=vStep, wrap=True).grid(
+        Spinbox(singleFrame, width=self.frameItemWidth[cStep], values=('1', '2', '4', '8', '12', '16', '32', '48', '64', txt('max')), textvariable=vStep, wrap=True).grid(
             row=0, column=cStep)
 
 
@@ -785,10 +829,10 @@ class SkillComposer:
         Entry(singleFrame, width=self.frameItemWidth[cNote], fg=color, textvariable=vNote, bd=1).grid(row=0,
                                                                                                       column=cNote)
 
-        delButton = Button(singleFrame, text='<', fg='red', width=self.frameItemWidth[cDel],
+        delButton = ttk.Button(singleFrame, text='<', bootstyle='danger', width=self.frameItemWidth[cDel], padding=self.framePadding[cDel],
                            command=lambda idx=currentRow: self.delFrame(idx))
 
-        addButton = Button(singleFrame, text='v', fg='green', width=self.frameItemWidth[cAdd],
+        addButton = ttk.Button(singleFrame, text='v', bootstyle='success', width=self.frameItemWidth[cAdd], padding=self.framePadding[cAdd],
                            command=lambda idx=currentRow: self.addFrame(idx + 1))
 
         setButton.grid(row=0, column=cSet, padx=1)
@@ -850,11 +894,11 @@ class SkillComposer:
     def changeButtonState(self, currentRow):
         if self.totalFrame > 0:
             self.getWidget(currentRow, cSet).config(text='=',  # +txt('Set')
-                                                    font='sans 14 bold', fg='blue')
+                                                    bootstyle='default', padding=self.currentPadding)
             if currentRow != self.activeFrame:
                 if 0 <= self.activeFrame < self.totalFrame:
                     self.getWidget(self.activeFrame, cSet).config(text='=',  # +txt('Set')
-                                                                  font='sans 12', fg='blue')
+                                                                  bootstyle='default', padding=self.framePadding[cSet])
                 self.activeFrame = currentRow
             self.originalAngle[0] = 0
 
@@ -894,7 +938,7 @@ class SkillComposer:
             frame[2][4:] = copy.deepcopy(self.frameData[4:])
 
             self.getWidget(currentRow, cSet).config(text='=',  # +txt('Set')
-                                                    font='sans 14 bold', fg='blue')
+                                                    bootstyle='default', padding=self.currentPadding)
         if self.totalFrame == 1:
             self.activeFrame = 0
 
@@ -1253,14 +1297,14 @@ class SkillComposer:
 
     def playThread(self):
         self.playStop = False
-        self.buttonPlay.config(text=txt('Stop'), fg='red', command=self.stop)
+        self.buttonPlay.config(text=txt('Stop'), bootstyle='danger', command=self.stop)
         t = threading.Thread(target=self.play)
         t.start()
 
     def play(self):
         if self.activeFrame + 1 == self.totalFrame:
             self.getWidget(self.activeFrame, cSet).config(text='=',  # +txt('Set')
-                                                          font='sans 12')
+                                                          bootstyle='default', padding=self.framePadding[cSet])
             self.activeFrame = 0
         for f in range(self.activeFrame, self.totalFrame):
             if self.playStop:
@@ -1268,11 +1312,11 @@ class SkillComposer:
 
             self.transformToFrame(f)
 
-        self.buttonPlay.config(text=txt('Play'), fg='green', command=self.playThread)
+        self.buttonPlay.config(text=txt('Play'), bootstyle='success', command=self.playThread)
         self.playStop = False
 
     def stop(self):
-        self.buttonPlay.config(text=txt('Play'), fg='green', command=self.playThread)
+        self.buttonPlay.config(text=txt('Play'), bootstyle='success', command=self.playThread)
         self.playStop = True
 
     def mirrorAngles(self, singleFrame):
@@ -1304,7 +1348,7 @@ class SkillComposer:
 
         if self.activeFrame + 1 == self.totalFrame:
             self.getWidget(self.activeFrame, cSet).config(text='=',  # +txt('Set')
-                                                          font='sans 12')
+                                                          bootstyle='default', padding=self.framePadding[cSet])
             self.window.update()
             self.activeFrame = 0
         skillData = list()
@@ -1414,13 +1458,13 @@ class SkillComposer:
     def indicateEdit(self):
         frame = self.frameList[self.activeFrame]
         if frame[2] != self.frameData:
-            self.getWidget(self.activeFrame, cSet).config(text='!'  # + txt('Save')
-                                                          , font='sans 14 bold', fg='red')
+            self.getWidget(self.activeFrame, cSet).config(text='!',  # +txt('Set')
+                                                          bootstyle='danger', padding=self.editPadding)
         #            print('frm',frame[2])
         #            print('dat',self.frameData)
         else:
             self.getWidget(self.activeFrame, cSet).config(text='=',  # +txt('Set')
-                                                          font='sans 14 bold', fg='blue')
+                                                          bootstyle='default', padding=self.currentPadding)
 
     def setCheckBox(self, currentRow):
         frame = self.frameList[currentRow]
@@ -1434,21 +1478,23 @@ class SkillComposer:
             self.binderValue[i].set(0)
             self.previousBinderValue[i] = 0
             self.changeRadioColor(i, 0)
-        self.controllerLabels[1].config(fg='blue')
+        self.controllerLabels[1].config(bootstyle='default')
 
     def changeRadioColor(self, joint, value):  # -1, 0, 1
         if value:
-            self.binderButton[joint * 2 + (1 - value) // 2].configure(background='red')
-            self.binderButton[joint * 2 + (value + 1) // 2].configure(background='light blue')
+            self.binderButton[joint * 2 + (1 - value) // 2].configure(bootstyle='warning-outline-toolbutton')
+            self.binderButton[joint * 2 + (value + 1) // 2].configure(bootstyle='info-outline-toolbutton')
         else:
-            self.binderButton[joint * 2].configure(background='light blue')
-            self.binderButton[joint * 2 + 1].configure(background='light blue')
+            self.binderButton[joint * 2].configure(bootstyle='info-outline-toolbutton')
+            self.binderButton[joint * 2 + 1].configure(bootstyle='info-outline-toolbutton')
         self.binderButton[joint * 2].update()
         self.binderButton[joint * 2 + 1].update()
         if 1 in self.previousBinderValue or -1 in self.previousBinderValue:
-            self.controllerLabels[1].config(fg='red')
+            self.controllerLabels[1].config(bootstyle='warning')
+
         else:
-            self.controllerLabels[1].config(fg='blue')
+            self.controllerLabels[1].config(bootstyle='default')
+            
 
     def updateRadio(self, joint):
         if self.previousBinderValue[joint] == self.binderValue[joint].get():
@@ -1656,7 +1702,7 @@ class SkillComposer:
                     # self.portMenu.config(state = DISABLED)
                     # self.updatePortMenu()
                     self.keepChecking = False
-                    self.frameDial.winfo_children()[1].config(text=txt('Connect'), fg='red')
+                    self.frameDial.winfo_children()[1].config(text=txt('Connect'), bootstyle='outline-toolbutton-danger')
                     self.dialValue[0].set(False)
                     # for b in buttons:
                     #     b.config(state = DISABLED)
@@ -1676,11 +1722,11 @@ class SkillComposer:
                     t.start()
                     send(ports, ['b', [10, 90], 0])
                     if len(goodPorts) > 0:
-                        self.frameDial.winfo_children()[1].config(text=txt('Connected'), fg='green')
+                        self.frameDial.winfo_children()[1].config(text=txt('Connected'), bootstyle='outline-toolbutton-success')
                         # for b in buttons:
                         #     b.config(state = NORMAL)
                     else:
-                        self.frameDial.winfo_children()[1].config(text=txt('Listening'), fg='orange')
+                        self.frameDial.winfo_children()[1].config(text=txt('Listening'), bootstyle='outline-toolbutton-warning')
                 # self.frameDial.winfo_children()[1].update()
                 self.updatePortMenu()
             elif len(goodPorts) > 0:
@@ -1689,27 +1735,27 @@ class SkillComposer:
                     state = result[0]
                     if state == 'p':
                         self.dialValue[i].set(True)
-                        self.frameDial.winfo_children()[2].config(fg='green')
+                        self.frameDial.winfo_children()[2].config(bootstyle='outline-toolbutton-success')
                         self.frameDial.winfo_children()[2].select()
                     elif state == 'P':
                         self.dialValue[i].set(False)
-                        self.frameDial.winfo_children()[2].config(fg='red')
+                        self.frameDial.winfo_children()[2].config(bootstyle='outline-toolbutton-danger')
                         self.frameDial.winfo_children()[2].deselect()
                     elif state == 'g':
                         self.dialValue[i].set(False)
-                        self.frameDial.winfo_children()[3].config(fg='red')
+                        self.frameDial.winfo_children()[3].config(bootstyle='outline-toolbutton-danger')
                         self.frameDial.winfo_children()[3].deselect()
                     elif state == 'G':
                         self.dialValue[i].set(True)
-                        self.frameDial.winfo_children()[3].config(fg='green')
+                        self.frameDial.winfo_children()[3].config(bootstyle='outline-toolbutton-success')
                         self.frameDial.winfo_children()[3].select()
                     elif state == 'z':
                         self.dialValue[i].set(False)
-                        self.frameDial.winfo_children()[4].config(fg='red')
+                        self.frameDial.winfo_children()[4].config(bootstyle='outline-toolbutton-danger')
                         self.frameDial.winfo_children()[4].deselect()
                     elif state == 'Z':
                         self.dialValue[i].set(True)
-                        self.frameDial.winfo_children()[4].config(fg='green')
+                        self.frameDial.winfo_children()[4].config(bootstyle='outline-toolbutton-success')
                         self.frameDial.winfo_children()[4].select()
 
     def on_closing(self):
