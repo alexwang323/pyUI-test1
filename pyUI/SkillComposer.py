@@ -108,7 +108,7 @@ class SkillComposer:
 
             self.sixW = 6
             self.sliderW = 200
-            self.buttonW = 10
+            self.buttonW = 8
             self.calibButtonW = 8
             self.canvasW = 330
             self.mirrorW = 2
@@ -523,7 +523,7 @@ class SkillComposer:
         labelPosture.grid(row=0, column=0, columnspan=4)
         i = 0
         for pose in self.postureTable:
-            button = Button(self.framePosture, text=pose, width=self.buttonW,
+            button = ttk.Button(self.framePosture, text=pose, width=self.buttonW,
                             command=lambda p=pose: self.setPose(p))
             button.grid(row=i // 4 + 1, column=i % 4, padx=3, pady=3)
             i += 1
