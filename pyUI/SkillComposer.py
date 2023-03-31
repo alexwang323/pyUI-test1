@@ -81,6 +81,7 @@ class SkillComposer:
         self.model = var.model_
         ports = goodPorts
         self.window = ttk.Window(themename=theme)
+        self.window.iconbitmap(default=resourcePath + 'Petoi.ico')
         self.style = ttk.Style()
         self.sliders = list()
         self.values = list()
@@ -103,8 +104,8 @@ class SkillComposer:
             self.backgroundColor = None
 
         if self.OSname == 'win32':
-            self.window.iconbitmap(resourcePath + 'Petoi.ico')
             # global frameItemWidth
+            self.window.iconbitmap(resourcePath + 'Petoi.ico')
             self.frameItemWidth = [2, 2, 3, 6, 4, 4, 6, 2, 2]
             self.headerOffset = [0, 1, 0, 2, 2, 1, 1, 0, 1]
             self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
