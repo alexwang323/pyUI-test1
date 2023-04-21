@@ -2,3 +2,5 @@
 *.pyc
 pyUI/.DS_Store
 .DS_Store
+pyUI/__pycache__/SkillComposer.cpython-37.pyc
+pyUI/__pycache__/translate.cpython-37.pyc

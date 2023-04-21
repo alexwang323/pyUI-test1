@@ -81,7 +81,6 @@ class SkillComposer:
         self.model = var.model_
         ports = goodPorts
         self.window = ttk.Window(themename=theme)
-        #self.window.iconbitmap(default=resourcePath + 'Petoi.ico')
         self.style = ttk.Style()
         self.sliders = list()
         self.values = list()
@@ -105,18 +104,18 @@ class SkillComposer:
 
         if self.OSname == 'win32':
             # global frameItemWidth
-            self.window.iconbitmap(resourcePath + 'Petoi.ico')
+            self.window.iconbitmap(default=resourcePath + 'Petoi.ico')
             self.frameItemWidth = [2, 2, 3, 6, 4, 4, 6, 2, 2]
             self.headerOffset = [0, 1, 0, 2, 2, 1, 1, 0, 1]
             self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
             self.currentPadding = (6,5)
             self.editPadding = (9,5)
 
+            self.horizontalP = (0,-8,0,0)
             self.sixW = 6
             self.sliderW = 200
             self.buttonW = 8
             self.buttonP = (10,5)
-            self.GorBW = 8
             self.binderBtnW = 2
             self.binderBtnP = (0,3)
             self.calibButtonW = 8
@@ -133,37 +132,38 @@ class SkillComposer:
             self.dialPad = 2
         else:
             if self.OSname == 'aqua':
-                self.frameItemWidth = [2, 2, 3,  4, 3, 3, 4, 1, 1]
+                self.frameItemWidth = [2, 2, 3,  4, 3, 3,4, 1, 1]
                 self.headerOffset = [2, 2, 2, 2, 2, 2, 2, 2, 2]
-                self.framePadding = [(5,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
+                self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
                 self.currentPadding = (6,5)
                 self.editPadding = (9,5)
+                self.horizontalP = (0,-8,0,0)
 
             else:
-                self.frameItemWidth = [1, 2, 3, 5, 4, 4, 6, 2, 2]
-                self.headerOffset = [0, 0, 1, 1, 1, 0, 0, 0, 1]
-                self.framePadding = [(5,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
+                self.frameItemWidth = [2, 2, 3, 4, 4, 4, 5, 2, 2]
+                self.headerOffset = [0, 0, 1,  1, 0,0, 0, 0, 1]
+                self.framePadding = [(3,5), (3,4), 0, 0, 0, 0, 0, (2,4), (2,4)]
                 self.currentPadding = (6,5)
                 self.editPadding = (9,5)
+                self.horizontalP = (0,-8,0,0)
 
-            self.sixW = 7
+            self.sixW = 5
             self.sliderW = 200
-            self.buttonW = 10
+            self.buttonW = 8
             self.buttonP = (3,4)
-            self.GorBW = 8
             self.binderBtnW = 2
             self.binderBtnP = (0,3)
             self.calibButtonW = 6
-            self.canvasW = 370
-            self.mirrorW = 3
+            self.canvasW = 420
+            self.mirrorW = 2
             self.mirrorP = (0,5)
-            self.MirrorW = 10
-            self.connectW = 9
+            self.MirrorW = 9
+            self.connectW = 8
             self.connectP = (3,5)
-            self.dialW = 7
+            self.dialW = 6
             self.dialP = (3,3)
-            self.portW = 6
-            self.portP = (0,5)
+            self.portW = 12
+            self.portP = (3,3)
             self.dialPad = 3
 
         self.myFont = tkFont.Font(
@@ -322,14 +322,14 @@ class SkillComposer:
                     if i < 4:
                         if d == 0:
                             if i == 1 or i == 2:
-                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)-1)
+                                button.grid(row=ROW + 2, column=COL + (1 - d) * (cSPAN - 1)-1, sticky='n')
                             else:
-                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)-1, sticky='e')
+                                button.grid(row=ROW + 2, column=COL + (1 - d) * (cSPAN - 1)-1, sticky='ne')
                         else:
                             if i == 1 or i == 2:
-                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)+1, sticky='w')
+                                button.grid(row=ROW + 2, column=COL + (1 - d) * (cSPAN - 1)+1, sticky='nw')
                             else:
-                                button.grid(row=ROW + 1, column=COL + (1 - d) * (cSPAN - 1)+1)
+                                button.grid(row=ROW + 2, column=COL + (1 - d) * (cSPAN - 1)+1, sticky='n')
                     else:
                         button.grid(row=ROW + 2 + d * (rSPAN - 1), column=COL, sticky='ns'[d]+'e')
                     binderValue.set(0)
@@ -379,7 +379,7 @@ class SkillComposer:
             self.controllerLabels.append(label)
 
     def create_horizontal_scale(self, i, tickDirection, stt, value, ORI, LEN, num):
-        frame = ttk.Labelframe(self.frameController, text='('+str(num)+')', borderwidth=2)
+        frame = ttk.Labelframe(self.frameController, text='('+str(num)+')', borderwidth=2, padding=self.horizontalP)
         sliderBar = ttk.Scale(frame, state=stt, variable=value, orient=ORI,
                         from_=-180 * tickDirection, to=180 * tickDirection,
                         length=LEN, command=lambda value, idx=i: self.setAngle(idx, float(value)))
@@ -621,7 +621,7 @@ class SkillComposer:
         options = [txt('Behavior'), txt('Gait')]
         self.GorB = ttk.OptionMenu(self.frameSkillEditor, self.gaitOrBehavior, options[0], *options)
         #self.GorB = OptionMenu(self.frameSkillEditor, self.gaitOrBehavior, txt('Gait'), txt('Behavior'))
-        self.GorB.config(width=self.GorBW, bootstyle='default', padding=self.portP)
+        self.GorB.config(width=self.buttonW, bootstyle='default', padding=self.portP)
         self.gaitOrBehavior.set(txt('Behavior'))
         self.GorB.grid(row=2, column=3, padx=pd, pady=pd)
 
